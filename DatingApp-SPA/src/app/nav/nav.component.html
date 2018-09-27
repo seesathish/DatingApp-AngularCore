@@ -18,7 +18,7 @@
         Welcome {{authService.decodedToken?.unique_name}}
       </a>
       <span class="ml-1">
-          <img src="{{photoUrl}}" alt="">
+          <img src="{{photoUrl || '../../../../assets/user.png'}}" alt="">
         </span>
       <div class="dropdown-menu dropdown-menu-right mt-3" *dropdownMenu>
         <a class="dropdown-item" [routerLink]="['/member/edit']"><i class="fa fa-user"></i> Edit Profile</a>
