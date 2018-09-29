@@ -1,10 +1,11 @@
-import { UserService } from './../../_services/user.service';
-import { Component, OnInit } from '@angular/core';
+import { AuthService } from './../../_services/auth.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { User } from '../../_models/user';
+import { UserService } from '../../_services/user.service';
 import { AlertifyService } from '../../_services/alertify.service';
 import { ActivatedRoute } from '@angular/router';
 import { NgxGalleryOptions, NgxGalleryImage, NgxGalleryAnimation } from 'ngx-gallery';
-import { AuthService } from '../../_services/auth.service';
+import { TabsetComponent } from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-member-detail',
@@ -12,6 +13,7 @@ import { AuthService } from '../../_services/auth.service';
   styleUrls: ['./member-detail.component.css']
 })
 export class MemberDetailComponent implements OnInit {
+  @ViewChild('memberTabs') memberTabs: TabsetComponent;
   user: User;
   galleryOptions: NgxGalleryOptions[];
   galleryImages: NgxGalleryImage[];
@@ -26,19 +28,22 @@ export class MemberDetailComponent implements OnInit {
       this.user = data['user'];
     });
 
+    this.route.queryParams.subscribe(params => {
+      const selectedTab = params['tab'];
+      this.memberTabs.tabs[selectedTab > 0 ? selectedTab : 0].active = true;
+    });
+
     this.galleryOptions = [
-    {
-      width: '500px',
-      height: '500px',
-      imagePercent: 100,
-      thumbnailsColumns: 4,
-      imageAnimation: NgxGalleryAnimation.Slide,
-      preview: false
-    }
+      {
+        width: '500px',
+        height: '500px',
+        imagePercent: 100,
+        thumbnailsColumns: 4,
+        imageAnimation: NgxGalleryAnimation.Slide,
+        preview: false
+      }
     ];
-
     this.galleryImages = this.getImages();
-
   }
 
   getImages() {
@@ -54,6 +59,10 @@ export class MemberDetailComponent implements OnInit {
     return imageUrls;
   }
 
+  selectTab(tabId: number) {
+    this.memberTabs.tabs[tabId].active = true;
+  }
+
   sendLike(id: number) {
     this.userService.sendLike(this.authService.decodedToken.nameid, id)
       .subscribe(data => {
@@ -62,4 +71,5 @@ export class MemberDetailComponent implements OnInit {
         this.alertify.error(error);
       });
   }
+
 }
