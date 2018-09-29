@@ -4,6 +4,7 @@ import { User } from '../../_models/user';
 import { AlertifyService } from '../../_services/alertify.service';
 import { ActivatedRoute } from '@angular/router';
 import { NgxGalleryOptions, NgxGalleryImage, NgxGalleryAnimation } from 'ngx-gallery';
+import { AuthService } from '../../_services/auth.service';
 
 @Component({
   selector: 'app-member-detail',
@@ -16,6 +17,7 @@ export class MemberDetailComponent implements OnInit {
   galleryImages: NgxGalleryImage[];
 
   constructor(private userService: UserService,
+    private authService: AuthService,
     private alertify: AlertifyService,
     private route: ActivatedRoute) { }
 
@@ -51,12 +53,13 @@ export class MemberDetailComponent implements OnInit {
     }
     return imageUrls;
   }
-  // loadUser() {
-  //   this.userService.getUser(+this.route.snapshot.params['id'])
-  //   .subscribe((user: User) => {
-  //     this.user = user;
-  //   }, error => {
-  //     this.alertify.error(error);
-  //   });
-  // }
+
+  sendLike(id: number) {
+    this.userService.sendLike(this.authService.decodedToken.nameid, id)
+      .subscribe(data => {
+        this.alertify.success('You have liked: ' + this.user.knownAs);
+      }, error => {
+        this.alertify.error(error);
+      });
+  }
 }
