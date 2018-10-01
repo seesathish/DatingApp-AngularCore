@@ -1,3 +1,4 @@
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 import { MemberListResolver } from './_resolvers/member-list.resolver';
 import { MemberDetailResolver } from './_resolvers/member-detail.resolver';
@@ -31,6 +32,7 @@ export const appRoutes: Routes = [
         resolve: {messages: MessagesResolver}},
       { path: 'lists', component: ListsComponent,
         resolve: {users: ListsResolver} },
+      { path: 'admin', component: AdminPanelComponent, data: {roles: ['Admin', 'Moderator']}}
     ]
   },
   { path: '**', redirectTo: '', pathMatch: 'full'}

@@ -25,28 +25,34 @@ namespace DatingApp.API.Data
             _context.Remove(entity);
         }
 
-        public async Task<Like> GetLike(int userid, int recipientId)
+        public async Task<Like> GetLike(int userId, int recipientId)
         {
-            return await _context.Likes.FirstOrDefaultAsync(u => 
-                u.LikerId == userid && u.LikeeId == recipientId);
+            return await _context.Likes.FirstOrDefaultAsync(u =>
+                u.LikerId == userId && u.LikeeId == recipientId);
         }
 
         public async Task<Photo> GetMainPhotoForUser(int userId)
         {
             return await _context.Photos.Where(u => u.UserId == userId)
-                                        .FirstOrDefaultAsync(p => p.IsMain);
+                .FirstOrDefaultAsync(p => p.IsMain);
         }
 
         public async Task<Photo> GetPhoto(int id)
         {
-            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id);
+            var photo = await _context.Photos.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             return photo;
         }
 
-        public async Task<User> GetUser(int id)
+        public async Task<User> GetUser(int id, bool isCurrentUser)
         {
-            var user = await _context.Users.Include(p=> p.Photos).FirstOrDefaultAsync(u => u.Id == id);
+            var query = _context.Users.Include(p => p.Photos).AsQueryable();
+
+            if (isCurrentUser)
+                query = query.IgnoreQueryFilters();
+
+            var user = await query.FirstOrDefaultAsync(u => u.Id == id);
 
             return user;
         }
@@ -72,15 +78,15 @@ namespace DatingApp.API.Data
                 users = users.Where(u => userLikees.Contains(u.Id));
             }
 
-            if(userParams.MinAge != 18 || userParams.MaxAge != 99)
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
             {
-                var minDob = DateTime.Today.AddYears(-userParams.MaxAge -1);
-                var maxDob = DateTime.Today.AddYears(-userParams.MaxAge);
+                var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+                var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
 
                 users = users.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
             }
 
-            if(!string.IsNullOrEmpty(userParams.OrderBy))
+            if (!string.IsNullOrEmpty(userParams.OrderBy))
             {
                 switch (userParams.OrderBy)
                 {
@@ -107,7 +113,7 @@ namespace DatingApp.API.Data
             {
                 return user.Likers.Where(u => u.LikeeId == id).Select(i => i.LikerId);
             }
-            else 
+            else
             {
                 return user.Likees.Where(u => u.LikerId == id).Select(i => i.LikeeId);
             }

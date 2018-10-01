@@ -1,17 +1,20 @@
 <div class="row">
-  <div class="col-sm-2" *ngFor="let photo of photos">
-    <img src="{{photo.url}}" alt="" class="img-thumbnail p-1">
+  <div class="col-sm-2 img-wrapper" *ngFor="let photo of photos">
+    <img src="{{photo.url}}" class="img-thumbnail p-1" alt=""
+      [ngClass]="!photo.isApproved && 'not-approved'">
+
+    <div class="text-center img-text" *ngIf="!photo.isApproved">
+        <span class="text-danger">Awaiting approval</span>
+    </div>
+
     <div class="text-center">
       <button type="button" class="btn btn-sm mr-1"
-        (click)="setMainPhoto(photo)"
         [ngClass]="photo.isMain ? 'btn-success active' : 'btn-secondary'"
-        [disabled]="photo.isMain">Main</button>
-      <button type="button"
-        class="btn btn-sm btn-danger"
-        (click)="deletePhoto(photo.id)"
-        [disabled]="photo.isMain">
-        <i class="fa fa-trash-o"></i>
-      </button>
+        (click)="setMainPhoto(photo)"
+        [disabled]="photo.isMain || !photo.isApproved">Main</button>
+      <button type="button" class="btn btn-sm btn-danger"
+        [disabled]="photo.isMain"
+        (click)="deletePhoto(photo.id)"><i class="fa fa-trash-o"></i></button>
     </div>
   </div>
 </div>
@@ -28,7 +31,7 @@
              [uploader]="uploader"
              class="card bg-faded p-3 text-center mb-3 my-drop-zone">
              <i class="fa fa-upload fa-3x"></i>
-            Drop Phots Here
+            Drop Photos Here
         </div>
 
         Multiple
@@ -54,7 +57,6 @@
             <tr *ngFor="let item of uploader.queue">
                 <td><strong>{{ item?.file?.name }}</strong></td>
                 <td *ngIf="uploader.options.isHTML5" nowrap>{{ item?.file?.size/1024/1024 | number:'.2' }} MB</td>
-
             </tr>
             </tbody>
         </table>
